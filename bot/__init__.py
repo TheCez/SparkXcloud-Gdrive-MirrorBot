@@ -13,6 +13,7 @@ from threading import Thread, Lock
 from dotenv import load_dotenv
 from pyrogram import Client, enums
 from asyncio import get_event_loop
+from megasdkrestclient import MegaSdkRestClient, errors as mega_err
 
 main_loop = get_event_loop()
 
@@ -57,13 +58,19 @@ except:
 
 PORT = environ.get('PORT', SERVER_PORT)
 Popen([f"gunicorn web.wserver:app --bind 0.0.0.0:{PORT}"], shell=True)
-srun(["qbittorrent-nox", "-d", "--profile=."])
+srun(["last-api", "-d", "--profile=."])
 if not ospath.exists('.netrc'):
     srun(["touch", ".netrc"])
 srun(["cp", ".netrc", "/root/.netrc"])
 srun(["chmod", "600", ".netrc"])
-srun(["chmod", "+x", "aria.sh"])
-srun(["./aria.sh"], shell=True)
+trackers = check_output(["curl -Ns https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/all.txt https://ngosang.github.io/trackerslist/trackers_all_http.txt https://newtrackon.com/api/all https://raw.githubusercontent.com/hezhijie0327/Trackerslist/main/trackerslist_tracker.txt | awk '$0' | tr '\n\n' ','"], shell=True).decode('utf-8').rstrip(',')
+if TORRENT_TIMEOUT is not None:
+    with open("a2c.conf", "a+") as a:
+        a.write(f"bt-stop-timeout={TORRENT_TIMEOUT}\n")
+with open("a2c.conf", "a+") as a:
+    a.write(f"bt-tracker=[{trackers}]")
+srun(["extra-api", "--conf-path=/usr/src/app/a2c.conf"])
+alive = Popen(["python3", "alive.py"])
 sleep(0.5)
 
 Interval = []
@@ -175,21 +182,32 @@ Thread(target=aria2c_init).start()
 sleep(1.5)
 
 try:
-    MEGA_API_KEY = getConfig('MEGA_API_KEY')
-    if len(MEGA_API_KEY) == 0:
+    MEGA_KEY = getConfig('MEGA_API_KEY')
+    if len(MEGA_KEY) == 0:
         raise KeyError
 except:
-    log_warning('MEGA API KEY not provided!')
-    MEGA_API_KEY = None
-try:
-    MEGA_EMAIL_ID = getConfig('MEGA_EMAIL_ID')
-    MEGA_PASSWORD = getConfig('MEGA_PASSWORD')
-    if len(MEGA_EMAIL_ID) == 0 or len(MEGA_PASSWORD) == 0:
-        raise KeyError
-except:
-    log_warning('MEGA Credentials not provided!')
-    MEGA_EMAIL_ID = None
-    MEGA_PASSWORD = None
+    MEGA_KEY = None
+    LOGGER.info('MEGA_API_KEY not provided!')
+if MEGA_KEY is not None:
+    # Start megasdkrest binary
+    Popen(["megasdkrest", "--apikey", MEGA_KEY])
+    sleep(3)  # Wait for the mega server to start listening
+    mega_client = MegaSdkRestClient('http://localhost:6090')
+    try:
+        MEGA_USERNAME = getConfig('MEGA_EMAIL_ID')
+        MEGA_PASSWORD = getConfig('MEGA_PASSWORD')
+        if len(MEGA_USERNAME) > 0 and len(MEGA_PASSWORD) > 0:
+            try:
+                mega_client.login(MEGA_USERNAME, MEGA_PASSWORD)
+            except mega_err.MegaSdkRestClientException as e:
+                log_error(e.message['message'])
+                exit(0)
+        else:
+            log_info("Mega API KEY provided but credentials not provided. Starting mega in anonymous mode!")
+    except:
+        log_info("Mega API KEY provided but credentials not provided. Starting mega in anonymous mode!")
+else:
+    sleep(1.5)
 try:
     DB_URI = getConfig('DATABASE_URL')
     if len(DB_URI) == 0:
