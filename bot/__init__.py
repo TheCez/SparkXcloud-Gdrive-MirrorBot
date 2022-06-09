@@ -447,6 +447,31 @@ try:
 except:
     SEARCH_PLUGINS = None
 
+try:        
+    BUTTON_FOUR_NAME = getConfig('BUTTON_FOUR_NAME')
+    BUTTON_FOUR_URL = getConfig('BUTTON_FOUR_URL')
+    if 0 in (len(BUTTON_FOUR_NAME), len(BUTTON_FOUR_URL)):
+        raise KeyError
+except KeyError:
+    BUTTON_FOUR_NAME = None
+    BUTTON_FOUR_URL = None
+try:
+    BUTTON_FIVE_NAME = getConfig('BUTTON_FIVE_NAME')
+    BUTTON_FIVE_URL = getConfig('BUTTON_FIVE_URL')
+    if 0 in (len(BUTTON_FIVE_NAME), len(BUTTON_FIVE_URL)):
+        raise KeyError
+except KeyError:
+    BUTTON_FIVE_NAME = None
+    BUTTON_FIVE_URL = None
+try:
+    BUTTON_SIX_NAME = getConfig('BUTTON_SIX_NAME')
+    BUTTON_SIX_URL = getConfig('BUTTON_SIX_URL')
+    if 0 in (len(BUTTON_SIX_NAME), len(BUTTON_SIX_URL)):
+        raise KeyError
+except KeyError:
+    BUTTON_SIX_NAME = None
+    BUTTON_SIX_URL = None
+
 updater = tgUpdater(token=BOT_TOKEN, request_kwargs={'read_timeout': 20, 'connect_timeout': 15})
 bot = updater.bot
 dispatcher = updater.dispatcher
