@@ -56,6 +56,14 @@ try:
 except:
     SERVER_PORT = 80
 
+try:
+    TORRENT_TIMEOUT = getConfig('TORRENT_TIMEOUT')
+    if len(TORRENT_TIMEOUT) == 0:
+        raise KeyError
+    TORRENT_TIMEOUT = int(TORRENT_TIMEOUT)
+except:
+    TORRENT_TIMEOUT = None
+
 PORT = environ.get('PORT', SERVER_PORT)
 Popen([f"gunicorn web.wserver:app --bind 0.0.0.0:{PORT}"], shell=True)
 srun(["last-api", "-d", "--profile=."])
@@ -281,13 +289,6 @@ try:
     RSS_DELAY = int(RSS_DELAY)
 except:
     RSS_DELAY = 900
-try:
-    TORRENT_TIMEOUT = getConfig('TORRENT_TIMEOUT')
-    if len(TORRENT_TIMEOUT) == 0:
-        raise KeyError
-    TORRENT_TIMEOUT = int(TORRENT_TIMEOUT)
-except:
-    TORRENT_TIMEOUT = None
 try:
     INCOMPLETE_TASK_NOTIFIER = getConfig('INCOMPLETE_TASK_NOTIFIER')
     INCOMPLETE_TASK_NOTIFIER = INCOMPLETE_TASK_NOTIFIER.lower() == 'true'
