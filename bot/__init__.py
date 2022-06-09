@@ -472,6 +472,15 @@ except KeyError:
     BUTTON_SIX_NAME = None
     BUTTON_SIX_URL = None
 
+try:
+    SHORTENER = getConfig('SHORTENER')
+    SHORTENER_API = getConfig('SHORTENER_API')
+    if 0 in (len(SHORTENER), len(SHORTENER_API)):
+        raise KeyError
+except KeyError:
+    SHORTENER = None
+    SHORTENER_API = None
+
 updater = tgUpdater(token=BOT_TOKEN, request_kwargs={'read_timeout': 20, 'connect_timeout': 15})
 bot = updater.bot
 dispatcher = updater.dispatcher
