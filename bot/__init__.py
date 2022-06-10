@@ -488,6 +488,34 @@ try:
 except KeyError:
     TORRENT_DIRECT_LIMIT = None
 
+try:
+    ZIP_UNZIP_LIMIT = getConfig('ZIP_UNZIP_LIMIT')
+    if len(ZIP_UNZIP_LIMIT) == 0:
+        ZIP_UNZIP_LIMIT = None
+except KeyError:
+    ZIP_UNZIP_LIMIT = None
+
+try:
+    CLONE_LIMIT = getConfig('CLONE_LIMIT')
+    if len(CLONE_LIMIT) == 0:
+        CLONE_LIMIT = None
+except KeyError:
+    CLONE_LIMIT = None
+
+try:
+    MEGA_LIMIT = getConfig('MEGA_LIMITT')
+    if len(MEGA_LIMIT) == 0:
+        MEGA_LIMIT = None
+except KeyError:
+    MEGA_LIMIT = None
+
+try:
+    STORAGE_THRESHOLD = getConfig('STORAGE_THRESHOLD')
+    if len(STORAGE_THRESHOLD) == 0:
+        STORAGE_THRESHOLD = None
+except KeyError:
+    STORAGE_THRESHOLD = None
+
 updater = tgUpdater(token=BOT_TOKEN, request_kwargs={'read_timeout': 20, 'connect_timeout': 15})
 bot = updater.bot
 dispatcher = updater.dispatcher
